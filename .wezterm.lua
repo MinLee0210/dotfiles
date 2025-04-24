@@ -86,7 +86,7 @@ config.window_padding = {
     bottom = 0,
 }
 
-config.color_scheme = 'Material (terminal.sexy)'
+config.color_scheme = 'Tokyo Night'
 config.font = wezterm.font('D2CodingLigature Nerd Font', { weight = "Medium", stretch = "Expanded" })
 config.font_size = 10
 config.window_decorations = "RESIZE"
