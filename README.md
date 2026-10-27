@@ -21,7 +21,7 @@ Personal terminal setup for macOS and Ubuntu: tmux, WezTerm, Starship, plus a fe
 `setup.sh` runs these in order; each can also be run on its own:
 
 1. `setup_utils.sh`: eza, bandwhich (Homebrew on macOS, snap on Linux)
-2. `setup_tools.sh`: miniconda, rust, uv, starship, wezterm
+2. `setup_tools.sh`: miniconda, rust, uv, starship, wezterm, plus ble.sh (bash) and zsh-autosuggestions + zsh-syntax-highlighting (zsh)
 3. `setup_tmux.sh`: TPM, then the plugins declared in `.tmux.conf`
 4. `setup_kubernetes.sh`: kubectl, minikube
 5. `setup_links.sh`: symlinks the configs into `~`

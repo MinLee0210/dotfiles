@@ -66,6 +66,20 @@ append_once() {
     grep -qxF "$line" "$file" 2>/dev/null || echo "$line" >> "$file"
 }
 
+# Insert a line at the top of a file unless it is already there
+prepend_once() {
+    local line="$1"
+    local file="$2"
+
+    touch "$file"
+    grep -qxF "$line" "$file" 2>/dev/null && return 0
+
+    local tmp
+    tmp="$(mktemp)"
+    { echo "$line"; cat "$file"; } > "$tmp" && cat "$tmp" > "$file"
+    rm -f "$tmp"
+}
+
 # Symlink src to dst. An existing file or foreign symlink at dst is moved aside
 # to dst.bak.<timestamp> rather than overwritten.
 link_file() {

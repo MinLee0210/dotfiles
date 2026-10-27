@@ -111,6 +111,71 @@ install_starship() {
     return 0
 }
 
+# Clone a repo into dir, or fast-forward it if already there
+clone_or_update() {
+    local url="$1"
+    local dir="$2"
+
+    if [ -d "$dir/.git" ]; then
+        git -C "$dir" pull --quiet
+    else
+        mkdir -p "$(dirname "$dir")"
+        git clone --quiet --depth 1 "$url" "$dir"
+    fi
+}
+
+# bash: ble.sh (syntax highlighting, autosuggestions, better completion).
+# ble.sh must be sourced first with --noattach and attached after everything else
+# (including the starship init), otherwise it conflicts with prompt hooks.
+install_blesh() {
+    print_status "Installing ble.sh (bash)..."
+
+    local blesh="$HOME/.local/share/blesh/ble.sh"
+    local src_dir="$DOWNLOADS_DIR/ble.sh"
+
+    if [ ! -f "$blesh" ]; then
+        if ! command_exists git || ! command_exists make; then
+            print_error "git and make are required to build ble.sh"
+            return 1
+        fi
+        git clone --quiet --recursive --depth 1 --shallow-submodules \
+            https://github.com/akinomyoga/ble.sh.git "$src_dir" || return 1
+        make -C "$src_dir" install PREFIX="$HOME/.local" >/dev/null || return 1
+    else
+        print_warning "ble.sh is already installed, skipping build..."
+    fi
+
+    prepend_once '[[ $- == *i* ]] && source "$HOME/.local/share/blesh/ble.sh" --noattach' "$HOME/.bashrc"
+    append_once '[[ ${BLE_VERSION-} ]] && ble-attach' "$HOME/.bashrc"
+
+    print_success "ble.sh installed and wired into ~/.bashrc"
+}
+
+# zsh: autosuggestions + syntax highlighting. zsh-syntax-highlighting must be
+# sourced last in .zshrc.
+install_zsh_plugins() {
+    print_status "Installing zsh plugins..."
+
+    if ! command_exists git; then
+        print_error "git is required to install zsh plugins"
+        return 1
+    fi
+
+    local plugins_dir="$HOME/.zsh/plugins"
+    clone_or_update https://github.com/zsh-users/zsh-autosuggestions.git "$plugins_dir/zsh-autosuggestions" || return 1
+    clone_or_update https://github.com/zsh-users/zsh-syntax-highlighting.git "$plugins_dir/zsh-syntax-highlighting" || return 1
+
+    append_once 'source "$HOME/.zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh"' "$HOME/.zshrc"
+    append_once 'source "$HOME/.zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"' "$HOME/.zshrc"
+
+    print_success "zsh plugins installed and wired into ~/.zshrc"
+}
+
+install_shell_enhancements() {
+    install_blesh || return 1
+    install_zsh_plugins
+}
+
 install_wezterm() {
     print_status "Installing WezTerm..."
 
@@ -161,7 +226,7 @@ install_wezterm() {
 main() {
     echo -e "${BLUE}================================================${NC}"
     echo -e "${BLUE}  Development Tools Setup Script${NC}"
-    echo -e "${BLUE}  Installing: miniconda, rust, uv, starship, wezterm${NC}"
+    echo -e "${BLUE}  Installing: miniconda, rust, uv, starship, ble.sh, zsh plugins, wezterm${NC}"
     echo -e "${BLUE}================================================${NC}"
     echo
 
@@ -172,7 +237,9 @@ main() {
     install_rust      || failed=$((failed + 1))
     install_uv        || failed=$((failed + 1))
     install_starship  || failed=$((failed + 1))
-    install_wezterm   || failed=$((failed + 1))
+    # After starship, so ble-attach lands below the starship init in ~/.bashrc
+    install_shell_enhancements || failed=$((failed + 1))
+    install_wezterm  || failed=$((failed + 1))
 
     echo
     if [ "$failed" -eq 0 ]; then

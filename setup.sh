@@ -16,7 +16,7 @@ SCRIPTS=(
 )
 DESCRIPTIONS=(
     "Utilities (eza, bandwhich)"
-    "Development tools (miniconda, rust, uv, starship, wezterm)"
+    "Development tools (miniconda, rust, uv, starship, ble.sh, zsh plugins, wezterm)"
     "Tmux plugin manager and plugins"
     "Kubernetes tools (kubectl, minikube)"
     "Link config files into place"
