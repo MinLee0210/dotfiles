@@ -151,7 +151,7 @@ install_blesh() {
     print_success "ble.sh installed and wired into ~/.bashrc"
 }
 
-# zsh: autosuggestions + syntax highlighting. zsh-syntax-highlighting must be
+# zsh: substring tab completion, autosuggestions + syntax highlighting. zsh-syntax-highlighting must be
 # sourced last in .zshrc.
 install_zsh_plugins() {
     print_status "Installing zsh plugins..."
@@ -164,6 +164,11 @@ install_zsh_plugins() {
     local plugins_dir="$HOME/.zsh/plugins"
     clone_or_update https://github.com/zsh-users/zsh-autosuggestions.git "$plugins_dir/zsh-autosuggestions" || return 1
     clone_or_update https://github.com/zsh-users/zsh-syntax-highlighting.git "$plugins_dir/zsh-syntax-highlighting" || return 1
+
+    # Tab completion: ignore case, then match anywhere in the name (polaris<Tab> -> ghq-dym-polaris-cgm-ai)
+    append_once 'autoload -Uz compinit && compinit' "$HOME/.zshrc"
+    append_once "zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}' 'm:{a-z}={A-Za-z} l:|=* r:|=*'" "$HOME/.zshrc"
+    append_once "zstyle ':completion:*' menu select" "$HOME/.zshrc"
 
     append_once 'source "$HOME/.zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh"' "$HOME/.zshrc"
     append_once 'source "$HOME/.zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"' "$HOME/.zshrc"
