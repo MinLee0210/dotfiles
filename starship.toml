@@ -136,10 +136,10 @@ min_time = 500
 format = ' [$duration](bold dimmed flamingo)'
  
 [directory]
-fish_style_pwd_dir_length = 5
 disabled = false
-truncation_length = 5
-truncation_symbol = '…/'
+# Show the full path: no truncation, and not cut at the git repo root
+truncation_length = 0
+truncate_to_repo = false
 read_only = ' read-only'
 read_only_style = 'bold dimmed mauve'
 style = 'bold mauve'
